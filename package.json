@@ -1,0 +1,47 @@
+{
+  "name": "node_project",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:dev": "tsc -w",
+    "start": "dotenv -e .env.production -- node dist/index.js",
+    "start:dev": "dotenv -e .env.development -- node --watch dist/index.js",
+    "dev": "dotenv -e .env.development -- tsx watch src/index.ts",
+    "test": "dotenv -e .testing.env -- cross-env NODE_ENV=testing tsx --test --tsconfig ./tsconfig.testing.json \"src/**/*.test.ts\" \"test/**/*.test.ts\"",
+    "test:unit": "dotenv -e .testing.env -- cross-env NODE_ENV=testing tsx --test --tsconfig ./tsconfig.testing.json \"src/**/*.test.ts\"",
+    "test:integration": "dotenv -e .testing.env -- cross-env NODE_ENV=testing tsx --test --tsconfig ./tsconfig.testing.json \"test/**/*.test.ts\"",
+    "test:watch": "dotenv -e .testing.env -- cross-env NODE_ENV=testing tsx watch --test --tsconfig ./tsconfig.testing.json \"src/**/*.test.ts\" \"test/**/*.test.ts\"",
+    "test:typecheck": "tsc -p tsconfig.testing.json --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.4.0",
+    "@types/supertest": "^7.2.1",
+    "cross-env": "^10.1.0",
+    "dotenv-cli": "^11.0.0",
+    "mongodb-memory-server": "^11.3.0",
+    "supertest": "^7.3.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@rblmdst/scheval": "^1.1.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.10.1"
+  }
+}

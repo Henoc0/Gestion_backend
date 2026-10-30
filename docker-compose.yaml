@@ -1,0 +1,64 @@
+services :
+  api-server :
+    container_name : nodejs-api-server
+    build : 
+      context : .
+      dockerfile : ./docker/server.dockerfile  
+
+    env_file : 
+      - ./docker/env/api-server.env  
+
+    ports :
+      - "5000:3000"  
+
+    networks:
+      app-network:
+        aliases: 
+         - apihost 
+
+    restart: always
+
+    depends_on:
+      - db-server 
+  
+ 
+  db-server:
+    container_name : "mongo-db"
+    image : "mongo:8.0.34"
+    restart : always
+    env_file :
+      - ./docker/env/db-server.env  
+    ports :
+      - "27017:27017"
+    networks :
+      app-network :
+        aliases : 
+         - dbhost 
+    volumes :
+      - type : volume
+        source : db-data
+        target : /data/db
+  
+
+  web-server :
+    image : nginx:latest
+    build :
+      context : .
+      dockerfile : ./docker/web-server.dockerfile  
+    ports :
+      - "80:80"
+    networks:
+      app-network:
+        aliases: 
+         - webhost 
+    depends_on:
+      - api-server  
+      - db-server   
+ 
+
+networks:
+  app-network:
+    driver: bridge 
+
+volumes:
+  db-data:
