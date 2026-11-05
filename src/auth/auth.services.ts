@@ -24,7 +24,8 @@ export class AuthService {
             throw new BadRequestError("Password is required");
         }
 
-        const existing = await this.userRepository.findByEmail(dto.email);
+        const normalizedEmail = dto.email.trim().toLowerCase();
+        const existing = await this.userRepository.findByEmail(normalizedEmail);
         if (existing) {
             throw new BadRequestError("Email already in use");
         }
@@ -33,13 +34,13 @@ export class AuthService {
 
         return this.userRepository.create({
             name: dto.name.trim(),
-            email: dto.email.trim().toLowerCase(),
+            email: normalizedEmail,
             password: hashedPassword,
         });
     }
 
     async getByEmail(email: string): Promise<User | null> {
-        return this.userRepository.findByEmail(email);
+        return this.userRepository.findByEmail(email.trim().toLowerCase());
     }
 
     async getProfile(userId: string): Promise<User> {
@@ -47,11 +48,14 @@ export class AuthService {
         if (!user) {
             throw new NotFoundError("Utilisateur introuvable");
         }
+        if (!user.isActive) {
+            throw new UnauthorizedError("Ce compte est désactivé");
+        }
         return user;
     }
 
     async getByEmailWithPassword(email: string): Promise<(User & { password?: string }) | null> {
-        return this.userRepository.findByEmailWithPassword(email);
+        return this.userRepository.findByEmailWithPassword(email.trim().toLowerCase());
     }
 
     async checkPassword(plainText: string, hashedPassword: string): Promise<boolean> {
@@ -67,7 +71,8 @@ export class AuthService {
             throw new BadRequestError("Password is required");
         }
 
-        const userWithPassword = await this.userRepository.findByEmailWithPassword(dto.email.trim().toLowerCase());
+        const normalizedEmail = dto.email.trim().toLowerCase();
+        const userWithPassword = await this.userRepository.findByEmailWithPassword(normalizedEmail);
         if (!userWithPassword || !userWithPassword.password) {
             throw new UnauthorizedError("Identifiants invalides");
         }
@@ -75,6 +80,10 @@ export class AuthService {
         const isMatch = await comparePassword(dto.password, userWithPassword.password);
         if (!isMatch) {
             throw new UnauthorizedError("Identifiants invalides");
+        }
+
+        if (!userWithPassword.isActive) {
+            throw new UnauthorizedError("Ce compte est désactivé");
         }
 
         // Ne pas renvoyer le hash du mot de passe dans le résultat

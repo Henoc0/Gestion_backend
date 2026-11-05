@@ -2,6 +2,8 @@
 import express, { type Express } from "express";
 import { employeeRouter } from "./employee/employee.routes.js";
 import { authRouter } from "./auth/auth.routes.js";
+import { playerRouter } from "./player/player.routes.js";
+import { gameRouter } from "./game/game.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { NotFoundError } from "./common/errors.js";
 import { config } from "./config/env.js";
@@ -56,6 +58,8 @@ export function createApp(): Express {
     // 4. Routes
     app.use("/employees", employeeRouter);
     app.use("/auth", authRouter);
+    app.use("/player", playerRouter);
+    app.use("/game", gameRouter);
 
     // Route racine / health check
     app.get("/", (_req, res) => {

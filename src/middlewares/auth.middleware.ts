@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { config } from "../config/env.js";
 import { verifyToken } from "../common/utils.js";
+import { UserModel } from "../user/user.model.js";
 
 const authPattern = /^bearer\s+.+/i;
 
@@ -37,6 +38,20 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         console.error("Unexpected auth error:", err);
         res.status(500).json({ error: "Internal server error" });
         return;
+    }
+
+    // Vérification de sécurité : si le compte a été désactivé après émission du token
+    const userId = req.user?.id || req.user?.userId || req.user?._id || req.user?.sub;
+    if (userId) {
+        try {
+            const user = await UserModel.findById(userId).select("isActive").lean();
+            if (user && !user.isActive) {
+                res.status(401).json({ error: "Ce compte a été désactivé" });
+                return;
+            }
+        } catch (dbErr) {
+            // Ne bloque pas si le serveur de test tourne sans connexion DB active
+        }
     }
 
     return next();

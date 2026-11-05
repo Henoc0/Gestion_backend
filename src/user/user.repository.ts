@@ -29,12 +29,14 @@ function toUser(doc: { _id: unknown; name: string; email: string; isActive: bool
  */
 export const userRepository: IUserRepository = {
     async findByEmail(email: string): Promise<User | null> {
-        const doc = await UserModel.findOne({ email }).lean();
+        const normalizedEmail = email.trim().toLowerCase();
+        const doc = await UserModel.findOne({ email: normalizedEmail }).lean();
         return doc ? toUser(doc) : null;
     },
 
     async findByEmailWithPassword(email: string): Promise<(User & { password?: string }) | null> {
-        const doc = await UserModel.findOne({ email }).lean();
+        const normalizedEmail = email.trim().toLowerCase();
+        const doc = await UserModel.findOne({ email: normalizedEmail }).lean();
         if (!doc) return null;
 
         const userWithPassword: User & { password?: string } = toUser(doc);
@@ -51,7 +53,11 @@ export const userRepository: IUserRepository = {
     },
 
     async create(data: RegisterDto): Promise<User> {
-        const doc = await UserModel.create(data);
+        const doc = await UserModel.create({
+            ...data,
+            name: data.name.trim(),
+            email: data.email.trim().toLowerCase(),
+        });
         return toUser(doc.toObject());
     },
 };

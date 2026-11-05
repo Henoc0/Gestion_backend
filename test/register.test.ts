@@ -151,9 +151,9 @@ describe("POST /auth/register (intégration)", () => {
         it("gère deux inscriptions simultanées avec le même email (une seule réussit)", async () => {
             const [a, b] = await Promise.all([register(validUser), register(validUser)]);
 
-            const statuses = [a.status, b.status].sort();
-            assert.strictEqual(statuses[0], 201);
-            assert.ok(statuses[1] >= 400 && statuses[1] < 500, `statut du perdant : ${statuses[1]}`);
+            const [firstStatus, secondStatus] = [a.status, b.status].sort();
+            assert.strictEqual(firstStatus, 201);
+            assert.ok(secondStatus !== undefined && secondStatus >= 400 && secondStatus < 500, `statut du perdant : ${secondStatus}`);
             assert.strictEqual(await UserModel.countDocuments(), 1);
         });
     });
